@@ -19,7 +19,7 @@ const RegisterForm = ({ setView }) => {
         setError('');
         setSuccess('');
         try {
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch('https://intern-assignment-edviron-1.onrender.com/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...formData, role: 'student' }),
@@ -59,7 +59,7 @@ const LoginForm = ({ setView, onLogin }) => {
         e.preventDefault();
         setError('');
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch('https://intern-assignment-edviron-1.onrender.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -100,8 +100,8 @@ const AdminDashboard = ({ user, token, onLogout }) => {
             setError('');
             try {
                 const url = filter === 'all' 
-                    ? 'http://localhost:5000/api/admin/transactions'
-                    : `http://localhost:5000/api/admin/transactions?status=${filter}`;
+                    ? 'https://intern-assignment-edviron-1.onrender.com/api/admin/transactions'
+                    : `https://intern-assignment-edviron-1.onrender.com/api/admin/transactions?status=${filter}`;
                 const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!response.ok) throw new Error('Failed to fetch transactions.');
                 const data = await response.json();
@@ -182,7 +182,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
         setError('');
         setSuccess('');
         try {
-            const response = await fetch('http://localhost:5000/api/student/details', {
+            const response = await fetch('https://intern-assignment-edviron-1.onrender.com/api/student/details', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(details),
@@ -206,7 +206,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
         }
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/payment/create-payment', {
+            const response = await fetch('https://intern-assignment-edviron-1.onrender.com/api/payment/create-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify({ amount: Number(amount) }),
