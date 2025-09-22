@@ -9,20 +9,20 @@ require('dotenv').config();
 const app = express();
 
 // --- CORS Configuration for Deployment ---
-// This is crucial for allowing your live frontend to talk to your live backend.
+// This allows your Netlify frontend and your local machine to talk to this server.
 const whitelist = [
-    process.env.FRONTEND_URL // Your live Netlify URL will go here
+    'http://localhost:5173', // For local development
+    'https://internedvirondharunkumar.netlify.app' // Your live Netlify URL
 ];
 
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (whitelist.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
         }
-        return callback(null, true);
     }
 };
 
@@ -149,7 +149,6 @@ app.post('/api/payment/create-payment', authMiddleware, async (req, res) => {
             return res.status(403).json({ message: 'User not authorized.' });
         }
         
-        // Use the live frontend URL from environment variables for the callback
         const callback_url = `${process.env.FRONTEND_URL}/payment-callback`;
         
         const signPayload = {
@@ -187,8 +186,6 @@ app.post('/api/payment/create-payment', authMiddleware, async (req, res) => {
         });
         await newOrder.save();
         
-        // This is a workaround for the faulty test API.
-        // We immediately mark the payment as successful for development purposes.
         const orderStatus = new OrderStatus({
             collect_id: newOrder._id,
             order_amount: amount,
@@ -209,6 +206,6 @@ app.post('/api/payment/create-payment', authMiddleware, async (req, res) => {
 });
 
 // --- Start Server ---
-const PORT = process.env.PORT || 10000; // Render uses a different port
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

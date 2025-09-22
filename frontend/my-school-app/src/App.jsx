@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
+// This is the crucial change for deployment.
+// It tells the live frontend on Netlify where to find the live backend on Render.
+const API_URL = 'https://intern-assignment-edviron-1.onrender.com';
+
 // --- Helper Components (SVG Icons & Spinner) ---
 const UserIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>);
 const LockIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>);
@@ -19,7 +23,7 @@ const RegisterForm = ({ setView }) => {
         setError('');
         setSuccess('');
         try {
-            const response = await fetch('https://intern-assignment-edviron.onrender.com/api/auth/register', {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...formData, role: 'student' }),
@@ -59,7 +63,7 @@ const LoginForm = ({ setView, onLogin }) => {
         e.preventDefault();
         setError('');
         try {
-            const response = await fetch('https://intern-assignment-edviron.onrender.com/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -100,8 +104,8 @@ const AdminDashboard = ({ user, token, onLogout }) => {
             setError('');
             try {
                 const url = filter === 'all' 
-                    ? 'https://intern-assignment-edviron.onrender.com/api/admin/transactions'
-                    : `https://intern-assignment-edviron.onrender.com/api/admin/transactions?status=${filter}`;
+                    ? `${API_URL}/api/admin/transactions`
+                    : `${API_URL}/api/admin/transactions?status=${filter}`;
                 const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!response.ok) throw new Error('Failed to fetch transactions.');
                 const data = await response.json();
@@ -182,7 +186,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
         setError('');
         setSuccess('');
         try {
-            const response = await fetch('https://intern-assignment-edviron.onrender.com/api/student/details', {
+            const response = await fetch(`${API_URL}/api/student/details`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(details),
@@ -206,7 +210,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
         }
         setIsLoading(true);
         try {
-            const response = await fetch('https://intern-assignment-edviron.onrender.com/api/payment/create-payment', {
+            const response = await fetch(`${API_URL}/api/payment/create-payment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify({ amount: Number(amount) }),
@@ -255,13 +259,49 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
     );
 };
 
-const PaymentCallback = () => (
-    <div className="page-container text-center">
-        <h1 className="text-3xl font-bold mb-4">Processing Payment...</h1>
-        <p className="text-gray-400">Please wait while we confirm your transaction. You will be redirected shortly.</p>
-        <div className="mt-8"><Spinner size="12"/></div>
-    </div>
-);
+const PaymentCallback = () => {
+    const [status, setStatus] = useState('processing');
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const handleCallback = () => {
+            // Because the backend marks the payment as 'success' immediately
+            // as a workaround, we just need to redirect the user back to the portal.
+            setStatus('success');
+            setTimeout(() => {
+                window.location.href = '/'; // Redirect to the root of the site
+            }, 3000);
+        };
+
+        handleCallback();
+    }, []);
+    
+    return (
+        <div className="page-container text-center">
+            {status === 'processing' && (
+                <>
+                    <h1 className="text-3xl font-bold mb-4">Processing Payment...</h1>
+                    <p className="text-gray-400">Please wait while we confirm your transaction.</p>
+                    <div className="mt-8"><Spinner size="12"/></div>
+                </>
+            )}
+             {status === 'success' && (
+                <>
+                    <h1 className="text-3xl font-bold mb-4 text-green-400">Payment Successful!</h1>
+                    <p className="text-gray-400">Redirecting you to the portal...</p>
+                     <div className="mt-8"><Spinner size="12"/></div>
+                </>
+            )}
+             {status === 'error' && (
+                <>
+                    <h1 className="text-3xl font-bold mb-4 text-red-400">An Error Occurred</h1>
+                    <p className="text-gray-400">{error}</p>
+                </>
+            )}
+        </div>
+    );
+};
+
 
 // --- Main App Component ---
 export default function App() {
@@ -339,12 +379,8 @@ export default function App() {
               {isLoading ? <Spinner size="12" /> : renderView()}
 
               <style>{`
-                  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-                  html, body { height: 100%; overflow-x: hidden; }
-
                   :root { 
-                      --main-bg: #000000; 
+                      --main-bg: #010409; 
                       --container-bg: #0D1117; 
                       --form-bg: #161B22; 
                       --border-color: #21262D; 
@@ -355,11 +391,11 @@ export default function App() {
                       --text-secondary: #8B949E;
                   }
                   
-                  .main-container { background-color: var(--main-bg); color: var(--text-primary); min-height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; position: relative; overflow: hidden; }
+                  .main-container { background-color: var(--main-bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
                   .header-container { text-align: center; margin-bottom: 2.5rem; }
-                  .form-header { font-size: 1.75rem; font-weight: 650; text-align: center; color: #F0F6FC; margin-bottom: 2rem; animation: slideInFromTop 0.5s ease-out; }
-                  .icon-wrapper { position: absolute; inset-y: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; color: var(--text-secondary); }
-                  .link { font-weight: 600; color: var(--link-color); cursor: pointer; padding-left:7rem;text-shadow: 0 0 8px rgba(88, 166, 255, 0.6); transition: all 0.2s ease-in-out; }                .form-subtitle { color: var(--text-secondary); margin-bottom: 1rem; animation: fadeInUp 0.4s ease-out 0.1s both; }
+                  .header-title { font-size: 2.75rem; font-weight: 800; letter-spacing: -0.025em; color: var(--text-primary); }
+                  .header-span { color: var(--primary-color); }
+                  .header-subtitle { color: var(--text-secondary); margin-top: 0.5rem; font-size: 1.125rem; }
 
                   .input-field { appearance: none; width: 100%; padding: 0.875rem 0.875rem 0.875rem 2.75rem; border-radius: 0.5rem; background-color: var(--main-bg); border: 1px solid var(--border-color); color: var(--text-primary); transition: border-color 0.2s, box-shadow 0.2s; font-size: 1rem; }
                   .input-field:focus { outline: none; border-color: var(--link-color); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2); }
