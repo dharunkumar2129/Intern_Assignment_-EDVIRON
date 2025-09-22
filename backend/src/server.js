@@ -9,8 +9,7 @@ require('dotenv').config();
 const app = express();
 
 // --- CORS Configuration for Deployment ---
-// This is the crucial change. We are allowing both your live Netlify URL
-// and your local development URL to communicate with the server.
+// This allows your Netlify frontend and your local machine to talk to this server.
 const whitelist = [
     'http://localhost:5173', // For local development
     'https://internedvirondharunkumar.netlify.app' // Your live Netlify URL
