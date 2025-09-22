@@ -15,6 +15,7 @@ const RegisterForm = ({ setView }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -22,6 +23,7 @@ const RegisterForm = ({ setView }) => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setLoading(true);
         try {
             const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
@@ -34,19 +36,31 @@ const RegisterForm = ({ setView }) => {
             setTimeout(() => setView('login'), 2000);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="w-full max-w-lg">
-            <form onSubmit={handleSubmit} className="form-container">
+        <div className="w-full max-w-2xl flex justify-center">
+            <form onSubmit={handleSubmit} className="form-container w-full max-w-md">
                 <h2 className="form-header">Create Student Account</h2>
                 {error && <p className="alert-error">{error}</p>}
                 {success && <p className="alert-success">{success}</p>}
-                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><UserIcon /></span></div><input className="input-field" name="username" type="text" placeholder="Full Name" onChange={handleChange} required/></div>
-                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><MailIcon /></span></div><input className="input-field" name="email" type="email" placeholder="Email Address" onChange={handleChange} required/></div>
-                <div className="input-group mb-6"><div className="icon-wrapper"><span className="icon-span"><LockIcon /></span></div><input className="input-field" name="password" type="password" placeholder="Password" onChange={handleChange} required/></div>
-                <button className="btn-primary w-full" type="submit">Sign Up</button>
+                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><UserIcon /></span></div><input className="input-field" name="username" type="text" placeholder="Full Name" onChange={handleChange} required /></div>
+                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><MailIcon /></span></div><input className="input-field" name="email" type="email" placeholder="Email Address" onChange={handleChange} required /></div>
+                <div className="input-group mb-6"><div className="icon-wrapper"><span className="icon-span"><LockIcon /></span></div><input className="input-field" name="password" type="password" placeholder="Password" onChange={handleChange} required /></div>
+                <button className="btn-primary w-full" type="submit" disabled={loading}>
+                    {loading ? (
+                        <div className="flex items-center justify-center">
+                            <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle>
+                                <path fill="currentColor" className="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Signing Up...
+                        </div>
+                    ) : 'Sign Up'}
+                </button>
                 <p className="form-footer-text">Already have an account? <span onClick={() => setView('login')} className="link">Log In</span></p>
             </form>
         </div>
@@ -56,12 +70,14 @@ const RegisterForm = ({ setView }) => {
 const LoginForm = ({ setView, onLogin }) => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
@@ -73,17 +89,29 @@ const LoginForm = ({ setView, onLogin }) => {
             onLogin(data);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="w-full max-w-lg">
-            <form onSubmit={handleSubmit} className="form-container">
-                <h2 className="form-header">Welcome Back</h2>
+        <div className="w-full max-w-2xl flex justify-center">
+            <form onSubmit={handleSubmit} className="form-container w-full max-w-md">
+                <h2 className="form-header">Welcome</h2>
                 {error && <p className="alert-error">{error}</p>}
-                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><MailIcon /></span></div><input className="input-field" name="email" type="email" placeholder="Email Address" onChange={handleChange} required/></div>
-                <div className="input-group mb-6"><div className="icon-wrapper"><span className="icon-span"><LockIcon /></span></div><input className="input-field" name="password" type="password" placeholder="Password" onChange={handleChange} required/></div>
-                <button className="btn-primary w-full" type="submit">Log In</button>
+                <div className="input-group"><div className="icon-wrapper"><span className="icon-span"><MailIcon /></span></div><input className="input-field" name="email" type="email" placeholder="Email Address" onChange={handleChange} required /></div>
+                <div className="input-group mb-6"><div className="icon-wrapper"><span className="icon-span"><LockIcon /></span></div><input className="input-field" name="password" type="password" placeholder="Password" onChange={handleChange} required /></div>
+                <button className="btn-primary w-full" type="submit" disabled={loading}>
+                    {loading ? (
+                        <div className="flex items-center justify-center">
+                            <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle>
+                                <path fill="currentColor" className="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Logging In...
+                        </div>
+                    ) : 'Log In'}
+                </button>
                 <p className="form-footer-text">No account? <span onClick={() => setView('register')} className="link">Register as Student</span></p>
             </form>
         </div>
@@ -103,7 +131,7 @@ const AdminDashboard = ({ user, token, onLogout }) => {
             setLoading(true);
             setError('');
             try {
-                const url = filter === 'all' 
+                const url = filter === 'all'
                     ? `${API_URL}/api/admin/transactions`
                     : `${API_URL}/api/admin/transactions?status=${filter}`;
                 const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -135,33 +163,33 @@ const AdminDashboard = ({ user, token, onLogout }) => {
                     <button onClick={() => setFilter('success')} className={filter === 'success' ? 'btn-filter-active' : 'btn-filter'}>Success</button>
                     <button onClick={() => setFilter('failed')} className={filter === 'failed' ? 'btn-filter-active' : 'btn-filter'}>Failed</button>
                 </div>
-                
+
                 <div className="overflow-x-auto bg-slate-800 rounded-lg">
-                    {loading ? <div className="p-8"><Spinner size="10"/></div> : error ? <p className="text-red-400 p-4">{error}</p> :
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-700">
-                            <tr>
-                                <th className="p-3">Student Name</th>
-                                <th className="p-3">Student Email</th>
-                                <th className="p-3">Amount (INR)</th>
-                                <th className="p-3">Status</th>
-                                <th className="p-3">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {transactions.length === 0 ? (
-                                <tr><td colSpan="5" className="text-center p-6 text-gray-400">No transactions found for this filter.</td></tr>
-                            ) : transactions.map(tx => (
-                                <tr key={tx._id} className="border-b border-slate-700 hover:bg-slate-700/50">
-                                    <td className="p-3">{tx.collect_id?.student_info?.name || 'N/A'}</td>
-                                    <td className="p-3">{tx.collect_id?.student_info?.email || 'N/A'}</td>
-                                    <td className="p-3">{(tx.order_amount || 0).toFixed(2)}</td>
-                                    <td className="p-3"><span className={`status-badge status-${tx.status}`}>{tx.status}</span></td>
-                                    <td className="p-3">{new Date(tx.collect_id?.createdAt).toLocaleString()}</td>
+                    {loading ? <div className="p-8"><Spinner size="10" /></div> : error ? <p className="text-red-400 p-4">{error}</p> :
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-700">
+                                <tr>
+                                    <th className="p-3">Student Name</th>
+                                    <th className="p-3">Student Email</th>
+                                    <th className="p-3">Amount (INR)</th>
+                                    <th className="p-3">Status</th>
+                                    <th className="p-3">Date</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {transactions.length === 0 ? (
+                                    <tr><td colSpan="5" className="text-center p-6 text-gray-400">No transactions found for this filter.</td></tr>
+                                ) : transactions.map(tx => (
+                                    <tr key={tx._id} className="border-b border-slate-700 hover:bg-slate-700/50">
+                                        <td className="p-3">{tx.collect_id?.student_info?.name || 'N/A'}</td>
+                                        <td className="p-3">{tx.collect_id?.student_info?.email || 'N/A'}</td>
+                                        <td className="p-3">{(tx.order_amount || 0).toFixed(2)}</td>
+                                        <td className="p-3"><span className={`status-badge status-${tx.status}`}>{tx.status}</span></td>
+                                        <td className="p-3">{new Date(tx.collect_id?.createdAt).toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     }
                 </div>
             </div>
@@ -175,7 +203,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const showDetailsForm = !user.studentId;
 
     const handleDetailsChange = (e) => setDetails({ ...details, [e.target.name]: e.target.value });
@@ -212,7 +240,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
         try {
             const response = await fetch(`${API_URL}/api/payment/create-payment`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ amount: Number(amount) }),
             });
             const data = await response.json();
@@ -225,7 +253,7 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
     };
 
     return (
-       <div className="page-container">
+        <div className="page-container">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Student Portal</h1>
                 <button onClick={onLogout} className="btn-secondary">Logout</button>
@@ -239,11 +267,11 @@ const StudentPortal = ({ user, token, onLogout, onUserUpdate }) => {
                     {error && <p className="alert-error">{error}</p>}
                     {success && <p className="alert-success">{success}</p>}
                     <label className="input-label">Student ID</label>
-                    <input name="studentId" value={details.studentId} onChange={handleDetailsChange} className="input-field mb-4" required/>
+                    <input name="studentId" value={details.studentId} onChange={handleDetailsChange} className="input-field mb-4" required />
                     <label className="input-label">Class</label>
-                    <input name="className" value={details.className} onChange={handleDetailsChange} className="input-field mb-4" required/>
+                    <input name="className" value={details.className} onChange={handleDetailsChange} className="input-field mb-4" required />
                     <label className="input-label">Section</label>
-                    <input name="section" value={details.section} onChange={handleDetailsChange} className="input-field mb-4" required/>
+                    <input name="section" value={details.section} onChange={handleDetailsChange} className="input-field mb-4" required />
                     <button type="submit" className="btn-primary" disabled={isLoading}>{isLoading ? <Spinner /> : 'Save Details'}</button>
                 </form>
             ) : (
@@ -275,24 +303,24 @@ const PaymentCallback = () => {
 
         handleCallback();
     }, []);
-    
+
     return (
         <div className="page-container text-center">
             {status === 'processing' && (
                 <>
                     <h1 className="text-3xl font-bold mb-4">Processing Payment...</h1>
                     <p className="text-gray-400">Please wait while we confirm your transaction.</p>
-                    <div className="mt-8"><Spinner size="12"/></div>
+                    <div className="mt-8"><Spinner size="12" /></div>
                 </>
             )}
-             {status === 'success' && (
+            {status === 'success' && (
                 <>
                     <h1 className="text-3xl font-bold mb-4 text-green-400">Payment Successful!</h1>
                     <p className="text-gray-400">Redirecting you to the portal...</p>
-                     <div className="mt-8"><Spinner size="12"/></div>
+                    <div className="mt-8"><Spinner size="12" /></div>
                 </>
             )}
-             {status === 'error' && (
+            {status === 'error' && (
                 <>
                     <h1 className="text-3xl font-bold mb-4 text-red-400">An Error Occurred</h1>
                     <p className="text-gray-400">{error}</p>
@@ -356,14 +384,14 @@ export default function App() {
 
     const renderView = () => {
         if (view === 'payment-callback') return <PaymentCallback />;
-        
+
         if (user && token) {
             if (user.role === 'admin') {
                 return <AdminDashboard user={user} token={token} onLogout={handleLogout} />;
             }
-            return <StudentPortal user={user} token={token} onLogout={handleLogout} onUserUpdate={handleUserUpdate}/>;
+            return <StudentPortal user={user} token={token} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />;
         }
-        
+
         return view === 'register'
             ? <RegisterForm setView={setView} />
             : <LoginForm setView={setView} onLogin={handleLogin} />;
@@ -371,14 +399,20 @@ export default function App() {
 
     return (
         <main className="main-container">
-              <div className="header-container">
-                  <h1 className="header-title">School Payment Portal <span className="header-span">(V2)</span></h1>
-                  <p className="header-subtitle">Secure | Reliable | Efficient</p>
-              </div>
+            <div className="header-container">
+                <h1 className="header-title">School Payment Portal <span className="header-span">(V2)</span></h1>
+                <p className="header-subtitle">Secure | Reliable | Efficient</p>
+            </div>
 
-              {isLoading ? <Spinner size="12" /> : renderView()}
+            {isLoading ? <Spinner size="12" /> : renderView()}
 
-              <style>{`
+            <style>{`
+                  body { 
+                      background-color: #000000; 
+                      margin: 0; 
+                      padding: 0; 
+                  }
+                  
                   :root { 
                       --main-bg: #010409; 
                       --container-bg: #0D1117; 
@@ -397,7 +431,7 @@ export default function App() {
                   .header-span { color: var(--primary-color); }
                   .header-subtitle { color: var(--text-secondary); margin-top: 0.5rem; font-size: 1.125rem; }
 
-                  .input-field { appearance: none; width: 100%; padding: 0.875rem 0.875rem 0.875rem 2.75rem; border-radius: 0.5rem; background-color: var(--main-bg); border: 1px solid var(--border-color); color: var(--text-primary); transition: border-color 0.2s, box-shadow 0.2s; font-size: 1rem; }
+                  .input-field { appearance: none; width: 100%; max-width: 16rem; padding: 0.875rem 0.875rem 0.875rem 2.75rem;padding-left:3rem; border-radius: 0.5rem; background-color: var(--main-bg); border: 1px solid var(--border-color); color: var(--text-primary); transition: border-color 0.2s, box-shadow 0.2s; font-size: 1rem; }
                   .input-field:focus { outline: none; border-color: var(--link-color); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2); }
                   
                   .btn-primary { background-color: var(--primary-color); color: white; font-weight: 600; padding: 0.875rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s, transform 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; min-height: 48px; cursor: pointer; border: 1px solid rgba(240, 246, 252, 0.1); }
@@ -410,17 +444,17 @@ export default function App() {
                   .link { font-weight: 600; color: var(--link-color); cursor: pointer; }
                   .link:hover { text-decoration: underline; }
 
-                  .page-container { width: 100%; max-width: 42rem; padding: 2rem; background-color: var(--container-bg); border-radius: 0.75rem; border: 1px solid var(--border-color); }
+                  .page-container { width: 100%; max-width: 60rem; padding: 2.5rem; background-color: var(--container-bg); border-radius: 1rem; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -25px rgba(0, 0, 0, 0.6), 0 0 40px rgba(35, 134, 54, 0.3), 0 0 80px rgba(88, 166, 255, 0.2), 0 0 120px rgba(35, 134, 54, 0.1); }
                   
                   .icon-wrapper { position: absolute; inset-y: 0; left: 0; padding-left: 0.875rem; display: flex; align-items: center; pointer-events: none; color: var(--text-secondary); }
                   .icon-span { width: 1.25rem; height: 1.25rem; }
                   
-                  .form-container { background-color: var(--container-bg); box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(35, 134, 54, 0.1); border-radius: 0.75rem; padding: 2.5rem; border: 1px solid var(--border-color); }
+                  .form-container { background-color: var(--container-bg); box-shadow: 0 25px 50px -25px rgba(0, 0, 0, 0.6), 0 0 40px rgba(35, 134, 54, 0.3), 0 0 80px rgba(88, 166, 255, 0.2), 0 0 120px rgba(35, 134, 54, 0.1); border-radius: 1rem; padding: 3rem; border: 1px solid var(--border-color);width:20rem;}
                   .form-header { font-size: 1.75rem; font-weight: 600; text-align: center; color: #F0F6FC; margin-bottom: 2rem; }
                   .form-footer-text { text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 1.5rem; }
                   .input-group { margin-bottom: 1.25rem; position: relative; }
                   
-                  .form-section { margin-top: 2rem; background-color: var(--form-bg); padding: 1.5rem; border-radius: 0.75rem; }
+                  .form-section { margin-top: 2rem; background-color: var(--form-bg); padding: 2rem; border-radius: 1rem; box-shadow: 0 15px 35px -20px rgba(0, 0, 0, 0.5), 0 0 25px rgba(35, 134, 54, 0.25), 0 0 50px rgba(88, 166, 255, 0.15); }
                   .form-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
                   .form-subtitle { color: var(--text-secondary); margin-bottom: 1rem; }
                   .input-label { display: block; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; }
@@ -428,8 +462,8 @@ export default function App() {
                   .alert-error { background-color: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); color: #F87171; text-align: center; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem; }
                   .alert-success { background-color: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.4); color: #34D399; text-align: center; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem; }
                   
-                  .btn-filter { background-color: #21262D; border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; }
-                  .btn-filter-active { background-color: var(--link-color); color: #0D1117; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid var(--link-color); }
+                  .btn-filter { background-color: #21262D;color:rgba(183, 249, 148, 0.71); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; }
+                  .btn-filter-active { background-color: var(--link-color); color:rgb(0, 0, 0); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid var(--link-color); }
 
                   .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; }
                   .status-pending { background-color: rgba(251, 191, 36, 0.2); color: #FBBF24; }
