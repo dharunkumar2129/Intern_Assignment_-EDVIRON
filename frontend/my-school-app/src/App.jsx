@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // This is the crucial change for deployment.
 // It tells the live frontend on Netlify where to find the live backend on Render.
-const API_URL = 'https://intern-assignment-edviron-1.onrender.com';
+const API_URL = 'https://intern-assignment-edviron.onrender.com';
 
 // --- Helper Components (SVG Icons & Spinner) ---
 const UserIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>);
