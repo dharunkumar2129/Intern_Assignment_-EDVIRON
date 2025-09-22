@@ -11,7 +11,6 @@ const app = express();
 // --- CORS Configuration for Deployment ---
 // This is crucial for allowing your live frontend to talk to your live backend.
 const whitelist = [
-    'http://localhost:5173', // For local development
     process.env.FRONTEND_URL // Your live Netlify URL will go here
 ];
 
