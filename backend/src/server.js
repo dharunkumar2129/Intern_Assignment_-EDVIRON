@@ -47,6 +47,7 @@ const UserSchema = new mongoose.Schema({
     section: { type: String },
 }, { timestamps: true });
 
+// FIX: Added customOrderId to satisfy the legacy unique index in the database.
 const orderSchema = new mongoose.Schema({
     school_id: { type: String },
     student_info: {
@@ -55,6 +56,7 @@ const orderSchema = new mongoose.Schema({
         email: String
     },
     collectRequestId: { type: String, unique: true, required: true },
+    customOrderId: { type: String } // Legacy field
 }, { timestamps: true });
 
 const orderStatusSchema = new mongoose.Schema({
@@ -178,10 +180,12 @@ app.post('/api/payment/create-payment', authMiddleware, async (req, res) => {
         
         const { collect_request_id, collect_request_url } = gatewayResponse.data;
 
+        // FIX: Set the legacy customOrderId field to the unique collect_request_id
         const newOrder = new Order({
             school_id: process.env.SCHOOL_ID,
             student_info: { name: user.username, id: user.studentId, email: user.email },
             collectRequestId: collect_request_id,
+            customOrderId: collect_request_id, // This will satisfy the old unique index
         });
         await newOrder.save();
         
